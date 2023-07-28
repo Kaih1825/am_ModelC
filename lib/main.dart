@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -32,14 +30,19 @@ class _HomeContainerState extends State<HomeContainer> with TickerProviderStateM
         statusBarColor: Colors.transparent,
       ),
     );
-    animation = AnimationController(vsync: this, duration: Duration(seconds: 2));
-    animation2 = AnimationController(vsync: this, duration: Duration(seconds: 2));
+
+    animation = AnimationController(vsync: this, duration: Duration(seconds: 1));
     tween = Tween(begin: 0.5, end: 0.0).animate(animation!);
-    tween2 = Tween(begin: 0.5, end: 0.0).animate(animation2!);
     animation!.addListener(() {
       if (scrollController.hasClients) {
-        scrollController.animateTo(scrollController.position.pixels + 100, duration: Duration(seconds: 1), curve: Curves.linear);
-        scrollController2.animateTo(scrollController2.position.pixels + 100, duration: Duration(seconds: 1), curve: Curves.linear);
+        if (scrollController.position.pixels > (Get.width * 3)) {
+          scrollController.jumpTo(0);
+        }
+        if (scrollController2.position.pixels > (Get.width * 3) + 200) {
+          scrollController2.jumpTo(200);
+        }
+        scrollController.animateTo(scrollController.position.pixels + 100, duration: Duration(milliseconds: 500), curve: Curves.linear);
+        scrollController2.animateTo(scrollController2.position.pixels + 100, duration: Duration(milliseconds: 500), curve: Curves.linear);
       }
       setState(() {});
     });
@@ -53,18 +56,7 @@ class _HomeContainerState extends State<HomeContainer> with TickerProviderStateM
       }
     });
     animation!.forward();
-    Timer(Duration(seconds: 1), () {
-      animation2!.addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          // Animation completed
-          animation2!.reverse();
-        } else if (status == AnimationStatus.dismissed) {
-          // Reverse animation completed
-          animation2!.forward();
-        }
-      });
-      animation2!.forward();
-    });
+
     setState(() {});
   }
 
@@ -73,105 +65,134 @@ class _HomeContainerState extends State<HomeContainer> with TickerProviderStateM
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: NestedScrollView(
-            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-              return [
-                SliverAppBar(
-                  backgroundColor: Colors.transparent,
-                  flexibleSpace: Container(
-                    decoration: const BoxDecoration(
-                        gradient:
-                            LinearGradient(colors: [Color(0xff335F82), Color(0xff053A67)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
-                        borderRadius: BorderRadius.only(bottomRight: Radius.circular(20), bottomLeft: Radius.circular(20))),
-                    child: Stack(
-                      children: [
-                        animation == null
-                            ? Container()
-                            : ClipRRect(
-                                borderRadius: const BorderRadius.only(bottomRight: Radius.circular(20), bottomLeft: Radius.circular(20)),
-                                child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: SizedBox(
-                                    height: 100,
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: ListView.builder(
-                                        controller: scrollController,
-                                        scrollDirection: Axis.horizontal,
-                                        itemBuilder: (BuildContext context, int index) {
-                                          return SizedBox(
-                                            width: Get.width + 200,
-                                            child: CustomPaint(
-                                              painter: PathPainter(tween.value, tween2.value, Color(0x52000000)),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                        animation == null
-                            ? Container()
-                            : ClipRRect(
-                                borderRadius: const BorderRadius.only(bottomRight: Radius.circular(20), bottomLeft: Radius.circular(20)),
-                                child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: SizedBox(
-                                    height: 100,
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: ListView.builder(
-                                        controller: scrollController2,
-                                        scrollDirection: Axis.horizontal,
-                                        itemBuilder: (BuildContext context, int index) {
-                                          return Padding(
-                                            padding: EdgeInsets.only(left: index == 0 ? Get.width / 2 : 0),
-                                            child: SizedBox(
+        body: DefaultTabController(
+          length: 3,
+          child: NestedScrollView(
+              headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                return [
+                  SliverAppBar(
+                    backgroundColor: Colors.transparent,
+                    flexibleSpace: Container(
+                      decoration: const BoxDecoration(
+                          gradient:
+                              LinearGradient(colors: [Color(0xff335F82), Color(0xff053A67)], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+                          borderRadius: BorderRadius.only(bottomRight: Radius.circular(20), bottomLeft: Radius.circular(20))),
+                      child: Stack(
+                        children: [
+                          animation == null
+                              ? Container()
+                              : ClipRRect(
+                                  borderRadius: const BorderRadius.only(bottomRight: Radius.circular(20), bottomLeft: Radius.circular(20)),
+                                  child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: SizedBox(
+                                      height: 100,
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: ListView.builder(
+                                          controller: scrollController,
+                                          scrollDirection: Axis.horizontal,
+                                          itemBuilder: (BuildContext context, int index) {
+                                            return SizedBox(
                                               width: Get.width + 200,
                                               child: CustomPaint(
-                                                painter: PathPainter(tween.value, tween2.value, Color(0xA91C5985)),
+                                                painter: PathPainter(tween.value, Color(0x52000000)),
                                               ),
-                                            ),
-                                          );
-                                        },
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                        SafeArea(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Align(
-                                alignment: Alignment.topRight,
-                                child: InkWell(
-                                  onTap: () {},
-                                  child: const Icon(
-                                    Icons.settings,
-                                    color: Colors.white,
+                          animation == null
+                              ? Container()
+                              : ClipRRect(
+                                  borderRadius: const BorderRadius.only(bottomRight: Radius.circular(20), bottomLeft: Radius.circular(20)),
+                                  child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: SizedBox(
+                                      height: 100,
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: ListView.builder(
+                                          controller: scrollController2,
+                                          scrollDirection: Axis.horizontal,
+                                          itemBuilder: (BuildContext context, int index) {
+                                            return Padding(
+                                              padding: EdgeInsets.only(left: index == 0 ? Get.width / 2 : 0),
+                                              child: SizedBox(
+                                                width: Get.width + 200,
+                                                child: CustomPaint(
+                                                  painter: PathPainter(tween.value, Color(0xA91C5985)),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                )),
-                          ),
-                        ),
-                        Align(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Image.asset(
-                              "res/logo.png",
+                                ),
+                          SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: InkWell(
+                                    onTap: () {},
+                                    child: const Icon(
+                                      Icons.settings,
+                                      color: Colors.white,
+                                    ),
+                                  )),
                             ),
                           ),
+                          Align(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 40),
+                              child: Image.asset(
+                                "res/logo.png",
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    bottom: const TabBar(
+                      indicatorColor: Colors.white,
+                      indicatorPadding: EdgeInsets.symmetric(horizontal: 40),
+                      tabs: [
+                        Tab(
+                          text: "News",
+                        ),
+                        Tab(
+                          text: "Results",
+                        ),
+                        Tab(
+                          text: "History",
                         ),
                       ],
                     ),
-                  ),
-                  expandedHeight: 300,
-                  collapsedHeight: 100,
-                  pinned: true,
-                )
-              ];
-            },
-            body: Text("")),
+                    expandedHeight: 300,
+                    collapsedHeight: 100,
+                    pinned: true,
+                  )
+                ];
+              },
+              body: Column(
+                children: [
+                  // WaveWidget(
+                  //   config: CustomConfig(
+                  //     durations: [5000, 4000],
+                  //     colors: [Colors.purple, Colors.green],
+                  //     heightPercentages: [0.66, 0.66],
+                  //   ),
+                  //   size: Size(double.infinity, 100),
+                  // )
+                ],
+              )),
+        ),
       ),
     );
   }
@@ -179,10 +200,9 @@ class _HomeContainerState extends State<HomeContainer> with TickerProviderStateM
 
 class PathPainter extends CustomPainter {
   final double h1;
-  final double h2;
   final Color color;
 
-  PathPainter(this.h1, this.h2, this.color);
+  PathPainter(this.h1, this.color);
 
   @override
   void paint(Canvas canvas, Size size) {
